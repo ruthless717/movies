@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Database</title>
+</head>
+<style>
+/* General Styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f3f4f6;
+    color: #333;
+}
+
+header {
+    background: linear-gradient(135deg, #3b82f6, #1e40af);
+    color: #fff;
+    padding: 1.5rem 0;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.2rem;
+    letter-spacing: 1px;
+}
+
+/* Add Movie Form Section */
+.add-movie-section {
+    margin: 2rem auto;
+    padding: 2.5rem;
+    max-width: 600px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.add-movie-section:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.add-movie-section h2 {
+    text-align: center;
+    margin-bottom: 1.2rem;
+    font-size: 1.8rem;
+    color: #333;
+    font-weight: bold;
+}
+
+#add-movie-form label {
+    display: block;
+    margin: 0.8rem 0 0.2rem;
+    font-weight: bold;
+    color: #555;
+}
+
+#add-movie-form input,
+#add-movie-form textarea {
+    width: 100%;
+    padding: 0.8rem;
+    margin-bottom: 1.2rem;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    font-size: 1rem;
+    color: #333;
+    transition: border 0.3s;
+}
+
+#add-movie-form input:focus,
+#add-movie-form textarea:focus {
+    border: 1px solid #3b82f6;
+    outline: none;
+    background-color: #fff;
+}
+
+#add-movie-form button {
+    width: 100%;
+    padding: 0.8rem;
+    background: linear-gradient(135deg, #3b82f6, #1e40af);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+
+#add-movie-form button:hover {
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    transform: translateY(-2px);
+}
+
+#add-movie-form button:active {
+    transform: translateY(0);
+}
+
+/* Movie List Styling */
+.movie-list {
+    max-width: 1000px;
+    margin: 2rem auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    padding: 0 1rem;
+}
+
+.movie {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.movie:hover {
+    transform: scale(1.03);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.movie img {
+    width: 100%;
+    height: auto;
+    border-bottom: 2px solid #3b82f6;
+}
+
+.movie-details {
+    padding: 1rem;
+    text-align: center;
+}
+
+.movie-details h2 {
+    font-size: 1.3rem;
+    margin: 0.5rem 0;
+    color: #333;
+}
+
+.movie-details button {
+    background-color: #3b82f6;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    margin-top: 0.5rem;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.movie-details button:hover {
+    background-color: #1e40af;
+}
+
+.movie-details button.delete {
+    background-color: #ef4444;
+}
+
+.movie-details button.delete:hover {
+    background-color: #dc2626;
+}
+
+/* Modal overlay styling */
+.view-movie-overlay, .edit-movie-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.view-movie-modal, .edit-movie-modal {
+    background: #fff;
+    width: 90%;
+    max-width: 500px;
+    padding: 2rem;
+    border-radius: 10px;
+    position: relative;
+    text-align: center;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.view-movie-close, .edit-movie-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: #333;
+    cursor: pointer;
+}
+
+.view-movie-close:hover, .edit-movie-close:hover {
+    color: #666;
+}
+
+#view-movie-poster {
+    width: 100%;
+    max-width: 250px;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+.view-movie-modal h3, .edit-movie-modal h3 {
+    font-size: 1.8rem;
+    margin: 0.5rem 0;
+    color: #333;
+}
+
+.view-movie-modal p, .edit-movie-modal p {
+    font-size: 1rem;
+    color: #555;
+}
+
+footer {
+    text-align: center;
+    padding: 1rem;
+    background: #1e40af;
+    color: #fff;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+</style>
+<body>
+    <header>
+        <h1>My Movie Database</h1>
+    </header>
+
+    <!-- Add Movie Form Section -->
+    <section class="add-movie-section">
+        <h2>Add a New Movie</h2>
+        <form id="add-movie-form">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required>
+            <label for="year">Year:</label>
+            <input type="number" id="year" name="year" required>
+            <label for="rating">Rating:</label>
+            <input type="number" id="rating" name="rating" step="0.1" min="0" max="10" required>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required></textarea>
+            <label for="poster">Poster URL:</label>
+            <input type="url" id="poster" name="poster" required>
+            <button onclick="addPost()">Add Movie</button>
+        </form>
+    </section>
+
+    <!-- Movie List Section -->
+    <section class="movie-list">
+        <!-- Movie entries will appear here -->
+    </section>
+
+    <!-- View Movie Modal -->
+    <div class="view-movie-overlay" id="view-movie-overlay">
+        <div class="view-movie-modal">
+            <button class="view-movie-close" onclick="closeMovieView()">&times;</button>
+            <img id="view-movie-poster" src="" alt="Movie Poster">
+            <h3 id="view-movie-title"></h3>
+            <p><strong>Year:</strong> <span id="view-movie-year"></span></p>
+            <p><strong>Rating:</strong> <span id="view-movie-rating"></span>/10</p>
+            <p id="view-movie-description"></p>
+        </div>
+    </div>
+
+    <!-- Edit Movie Modal -->
+    <div class="edit-movie-overlay" id="edit-movie-overlay">
+        <div class="edit-movie-modal">
+            <button class="edit-movie-close" onclick="closeEditMovieView()">&times;</button>
+            <h3>Edit Movie</h3>
+            <form id="edit-movie-form">
+                <label for="edit-title">Title:</label>
+                <input type="text" id="edit-title" name="title" required>
+                <label for="edit-year">Year:</label>
+                <input type="number" id="edit-year" name="year" required>
+                <label for="edit-rating">Rating:</label>
+                <input type="number" id="edit-rating" name="rating" step="0.1" min="0" max="10" required>
+                <label for="edit-description">Description:</label>
+                <textarea id="edit-description" name="description" required></textarea>
+                <label for="edit-poster">Poster URL:</label>
+                <input type="url" id="edit-poster" name="poster" required>
+                <button type="submit">Update Movie</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Movie Database. All rights reserved.</p>
+    </footer>
+
+</body>
+<script>
+  let currentEditMovieId = null;
+
+// Function to fetch movies
+async function fetchMovies() {
+    try {
+        const response = await fetch('http://localhost:3000/api/movies');
+        const movies = await response.json();
+        const movieList = document.querySelector('.movie-list');
+        movieList.innerHTML = '';
+        
+        movies.forEach(movie => {
+            const movieDiv = document.createElement('div');
+            movieDiv.classList.add('movie');
+            movieDiv.innerHTML = `
+                <img src="${movie.poster}" alt="${movie.title} Poster" class="movie-poster">
+                <div class="movie-details">
+                    <h2>${movie.title}</h2>
+                    <p><strong>Year:</strong> ${movie.year}</p>
+                    <p><strong>Rating:</strong> ${movie.rating}/10</p>
+                    <p class="description">${movie.description}</p>
+                    <button onclick="editMovieDetails(${JSON.stringify(movie)})">Edit</button>
+                    <button onclick="deleteMovie('${movie._id}')">Delete</button>
+                </div>
+            `;
+
+            movieDiv.addEventListener('click', () => viewMovieDetails(movie));
+            movieList.appendChild(movieDiv);
+        });
+    } catch (error) {
+        console.error("Error fetching movies:", error);
+    }
+}
+//add post
+async function addPost( ){
+            // e.preventDefault();
+            const title=document.getElementById('title').value;
+            let year=document.getElementById('year').value;
+            let rating=document.getElementById('rating').value;
+            const description=document.getElementById('description').value;
+            const poster=document.getElementById('poster').value;
+            
+            const response= await fetch('http://localhost:3000/api/movies',{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title,year,rating,description,poster  })
+            });
+
+            if(response.ok){
+                document.getElementById('title').value='';
+                document.getElementById('year').value='';
+                document.getElementById('rating').value='';
+                document.getElementById('description').value='';
+                document.getElementById('poster').value='';
+                // fetchBlogs();
+            }else{
+                console.error('failed create blog',response.statusText);
+            }
+            
+        }
+
+// Delete movie by ID
+async function deleteMovie(id) {
+    try {
+        await fetch(`http://localhost:3000/api/movies/${id}`, { method: 'DELETE' });
+        fetchMovies();
+    } catch (error) {
+        console.error("Error deleting movie:", error);
+    }
+}
+
+// Show edit modal with movie details
+function editMovieDetails(title,year,rating,description,poster) {
+    currentEditMovieId = movie.id;
+    document.getElementById('edit-title').value = title;
+    document.getElementById('edit-year').value = year;
+    document.getElementById('edit-rating').value = rating;
+    document.getElementById('edit-description').value = description;
+    document.getElementById('edit-poster').value = poster;
+    document.getElementById('edit-movie-overlay').style.display = 'flex';
+}
+function openEditModal(id, title, year, rating,description, poster) {
+            let currentEditMovieId = id;
+            document.getElementById('edit-title').value = title;
+            document.getElementById('edit-year').value = year;
+            document.getElementById('edit-rating').value = rating;
+            document.getElementById('edit-description').value=description;
+            document.getElementById('edit-poster').value=poster;
+            document.getElementById('edit-movie-modal').style.display = 'block';
+
+            document.getElementById('saveButton').onclick = (e) => updatePost(e, currentEditMovieId);
+        }
+
+// Close edit movie modal
+function closeEditMovieView() {
+    document.getElementById('edit-movie-overlay').style.display = 'none';
+}
+
+// Update movie details
+document.getElementById('edit-movie-form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    const updatedMovie = {
+        title: document.getElementById('edit-title').value,
+        year: document.getElementById('edit-year').value,
+        rating: document.getElementById('edit-rating').value,
+        description: document.getElementById('edit-description').value,
+        poster: document.getElementById('edit-poster').value
+    };
+
+    try {
+        await fetch(`http://localhost:3000/api/movies/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ title, year, rating,description, poster})
+        });
+        
+        closeEditMovieView();
+        fetchMovies();
+    } catch (error) {
+        console.error("Error updating movie:", error);
+    }
+});
+
+// View movie details
+function viewMovieDetails(movie) {
+    document.getElementById('view-movie-title').textContent = movie.title;
+    document.getElementById('view-movie-year').textContent = movie.year;
+    document.getElementById('view-movie-rating').textContent = movie.rating;
+    document.getElementById('view-movie-description').textContent = movie.description;
+    document.getElementById('view-movie-poster').src = movie.poster;
+    document.getElementById('view-movie-overlay').style.display = 'flex';
+}
+
+// Close view movie modal
+function closeMovieView() {
+    document.getElementById('view-movie-overlay').style.display = 'none';
+}
+
+// Close edit movie modal
+function closeEditMovieView() {
+    document.getElementById('edit-movie-overlay').style.display = 'none';
+}
+
+// Fetch movies on page load
+window.onload = fetchMovies;
+
+</script>
+</html>
